@@ -13,9 +13,7 @@ services:
       - plantdiary-network
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ${DOCKER_USERNAME}/plantdiary-backend:${BRANCH_NAME}-latest
     ports:
       - "8080:8080"
     depends_on:
@@ -27,9 +25,7 @@ services:
      - plantdiary-network
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: ${DOCKER_USERNAME}/plantdiary-frontend:${BRANCH_NAME}-latest
     ports:
       - "5173:80"
     depends_on:
