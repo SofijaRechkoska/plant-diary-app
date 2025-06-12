@@ -1,0 +1,46 @@
+name: Build and Push Docker Images 
+
+on:
+  push:
+    branches:
+      - "*"  
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set branch name
+        id: vars
+        run: echo "branch_name=$(echo ${{ github.ref_name }} | tr '/' '-')" >> "$GITHUB_OUTPUT"
+
+      - name: Set up JDK for backend
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push backend Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/plantdiary-backend:${{ steps.vars.outputs.branch_name }}-latest
+
+      - name: Build and push frontend Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/plantdiary-frontend:${{ steps.vars.outputs.branch_name }}-latest
